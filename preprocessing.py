@@ -15,8 +15,7 @@ def handle_data(folder_path):
                 os.remove(file_path)
                 print(f"Deleted: {file_path}")
 
-main_directory = 'D:\dev\dataset_preprocessing\Insight-MVT_Annotation_Train'
-
+main_directory = 'D:\dev\dataset_preprocessing\Insight-MVT_Annotation_Train' # that`s because I used Windows for downloading
 for folder_name in os.listdir(main_directory):
     folder_path = os.path.join(main_directory, folder_name)
 

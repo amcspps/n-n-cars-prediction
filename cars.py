@@ -1,14 +1,37 @@
-import tensorflow as tf
-from tensorflow.keras import layers, models
+import cv2
+import os
 
-model = models.Sequential()
-model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(height, width, channels)))
-model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(128, (3, 3), activation='relu'))
-model.add(layers.Flatten())
-model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(1, activation='linear'))
+#pre-trained car classifier
+car_cascade = cv2.CascadeClassifier('haarcascade_car.xml')
 
-model.compile(optimizer='adam', loss='mean_squared_error', metrics=['mae'])
+def count_cars_in_folder(input_folder, output_folder):
+    for root, dirs, files in os.walk(input_folder):
+        for file in files:
+            if file.lower().endswith('.jpg'):
+                image_path = os.path.join(root, file)
+                count_and_annotate_cars(image_path, output_folder, root)
+
+def count_and_annotate_cars(image_path, output_folder, relative_path):
+    image = cv2.imread(image_path)
+    
+    if image is not None:
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        
+        cars = car_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(25, 25))
+        
+        num_cars = len(cars)
+        
+        print(f"Number of cars in {image_path}: {num_cars}")
+        
+        output_folder_path = os.path.join(output_folder, relative_path)
+        os.makedirs(output_folder_path, exist_ok=True)
+        
+        annotation_path = os.path.join(output_folder_path, f"{os.path.splitext(os.path.basename(image_path))[0]}.txt")
+        with open(annotation_path, 'w') as f:
+            f.write(str(num_cars))
+        
+
+dataset_folder = '/home/pavel/dev/n-n-cars-prediction/Insight-MVT_Annotation_Train'
+annotations_folder = '/home/pavel/dev/n-n-cars-prediction/annotations'
+
+count_cars_in_folder(dataset_folder, annotations_folder)
