@@ -1,3 +1,4 @@
 venv/
 Insight*/
 haarcascade_car.xml
+.vscode
